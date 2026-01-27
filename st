@@ -123,7 +123,7 @@ getgenv().whateverlolREAPINGDAHOODIANSTOOGT2 = {
 
     ["Visuals"] = {
              ["Raid Awareness"] = {
-                            ["Visible"] = true,
+                            ["Visible"] = false,
                             ["Friend Check"] = false,
 
                             ["DistanceTarget"] = {
@@ -252,7 +252,7 @@ getgenv().whateverlolREAPINGDAHOODIANSTOOGT2 = {
     },
 
     ["Skin Changer"] = { 
-                  ["Enabled"] = true,
+                  ["Enabled"] = false,
                   ["Tools"] = {
                     ["[Revolver]"] = "Golden Age", -- Galaxy, Luck, Matrix, Golden Age, Christmas Wrap, Inferno, Iced Out
                     ["[Double-Barrel SG]"] = "Golden Age", -- Luck, Galaxy, Matrix, Golden Age, Christmas Wrap, Valentine
@@ -264,7 +264,7 @@ getgenv().whateverlolREAPINGDAHOODIANSTOOGT2 = {
 
     ["Movement Enhancements"] = { 
              ['Speed Enhancements'] = {
-                          ["Enabled"] = false,
+                          ["Enabled"] = true,
 
                           ["Related Shooting"] = {
                                         ["While Shooting"] = 1.2,
@@ -293,7 +293,7 @@ getgenv().whateverlolREAPINGDAHOODIANSTOOGT2 = {
     },
 
        ['Macro'] = {
-           ["Enabled"] = true,
+           ["Enabled"] = false,
            ["Type"] = "ThirdPerson", -- ThirdPerson // FirstPerson.
            ["Delay"] = 0.01,
            ["HoldMode"] = true,
