@@ -1,10 +1,10 @@
+
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
-
 
 local Config = {
     Enabled = true,
@@ -19,7 +19,6 @@ local Config = {
 
 Config.StartDelay = math.clamp(Config.StartDelay, 0.01, 1)
 Config.EndDelay   = math.clamp(Config.EndDelay, Config.StartDelay, 2)
-
 
 local isToggled = false
 local nextShotTime = 0
@@ -39,6 +38,7 @@ local function getMousePosition()
     return pos.X, pos.Y
 end
 
+
 local function isUsingKnife()
     local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
     if not tool then return false end
@@ -49,6 +49,18 @@ local function isUsingKnife()
 
     return table.find(blacklist, tool.Name:lower()) ~= nil
 end
+
+
+local function hasForceField(character)
+    if not character then return false end
+    return character:FindFirstChildOfClass("ForceField") ~= nil
+end
+
+
+local function isTyping()
+    return UserInputService:GetFocusedTextBox() ~= nil
+end
+
 
 local function isValidCharacterPart(part)
     if not part then return false end
@@ -63,6 +75,10 @@ local function isValidCharacterPart(part)
         return false
     end
 
+    if hasForceField(character) then
+        return false
+    end
+
     return true
 end
 
@@ -73,6 +89,8 @@ end
 
 
 local function TriggerAction()
+    if isTyping() then return false end 
+
     local char = LocalPlayer.Character
     if not char then return false end
 
@@ -133,13 +151,13 @@ RunService.RenderStepped:Connect(function()
         validTarget = TriggerAction()
     end
 
-    
     if mouseHeld and (not isToggled or not validTarget) then
         local x, y = getMousePosition()
         mouseUp(x, y)
         mouseHeld = false
     end
 end)
+
 
 
 local UserInputService = game:GetService("UserInputService")
