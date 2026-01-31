@@ -1,324 +1,157 @@
-getgenv().whateverlolREAPINGDAHOODIANSTOOGT2 = {  
+print("loadin ur shit")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 
-    ["Core"] = { 
-        ["predictionresult"] = false, -- Keep it False for DaHood !!
-        ["DebugMode"] = false,
-        ["Bind Link"] = true, 
-        ["DynamicMode"] = true,
-        ["Hit-Scan Correction"] = false, -- NOT STABLE !! ))
-        ["Load Check"] = true,
-    },
+local Mouse = Players.LocalPlayer:GetMouse()
+local Active = false
+local RightClickHeld = false
+local FOV = 35
+local HitPart = "Closest" -- Options: "Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Closest"
+local TeamCheck = true -- Set to false to target teammates
 
-    ["Binds"] = {
-        ["LockOn"] = "C",
-        ["Unlock"] = "Z",
-        ["Aim Correction Toggle"] = "B",
-        ["Assisted Clicking"] = "V",
-        ["HideVisuals"] = "L",
-        ["AxisInfluence Toggle"] = "H",
-        ["Inventory Sorter"] = "I",
-        ["RaidAwarenessAlly"] = "G",
-        ["RaidAwarenessEnemy"] = "T",
-        ["Macro"] = "X",
-    },
+function CheckTeam(Player)
+	if not TeamCheck then
+		return true
+	end
+	if Player.Team == Players.LocalPlayer.Team then
+		return false
+	end
+	return true
+end
 
-    ["Enhanced Accuracy"] = {
-        ["Enabled"] = true,
-        ["Mode"] = "Target", -- Target // Auto --))
-        ["BulletPoint"] = "ClosestPoint", 
-        ["HitPower"] = 0.5, -- Higher the More Legit
-        ["FOVType"] = 'BoxFOV', -- BoxFOV // CircleFOV
-        ["Visible Target"] = true,
+function CheckInvisible(Character)
+	for _, Part in pairs(Character:GetDescendants()) do
+		if Part:IsA("BasePart") or Part:IsA("MeshPart") then
+			if Part.Transparency < 1 then
+				return false
+			end
+		end
+	end
+	return true
+end
 
-        ["Prediction"] = {
-            ["Ground"] = 0,
-            ["Air"] = 0,
-        },
-    },
+function CheckForcefield(Character)
+	if Character:FindFirstChildOfClass("ForceField") then
+		return true
+	end
+	return false
+end
 
-     ["AxisInfluence"] = {
-                 ["Enabled"] = true,
-                 ["StartOn"] = 'Natural',
+function CheckBehind(Character)
+	local ignore = {
+		Character:WaitForChild("Left Arm"),
+		Character:WaitForChild("Right Arm"),
+		Character:WaitForChild("Right Leg"),
+		Character:WaitForChild("Left Leg"),
+		Character:WaitForChild("Torso"),
+		Character:WaitForChild("HumanoidRootPart"),
+		Players.LocalPlayer.Character:WaitForChild("Left Arm"),
+		Players.LocalPlayer.Character:WaitForChild("Right Arm"),
+		Players.LocalPlayer.Character:WaitForChild("Right Leg"),
+		Players.LocalPlayer.Character:WaitForChild("Left Leg"),
+		Players.LocalPlayer.Character:WaitForChild("Torso"),
+		Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+	}
+	local RayCast = Ray.new(Players.LocalPlayer.Character.Head.CFrame.p, (Character.Head.CFrame.p - Players.LocalPlayer.Character.Head.CFrame.p).unit*1000)
+	local Part, Pos = workspace:FindPartOnRayWithIgnoreList(RayCast, ignore, false, true)
+	local Debris = math.floor((Players.LocalPlayer.Character.Head.CFrame.p - Pos).magnitude*100)/100
+	local EndPos = math.floor((Players.LocalPlayer.Character.Head.CFrame.p - Character.Head.CFrame.p).magnitude*100)/100
+	if EndPos - Debris < 2 then
+		return true
+	end
+end
 
-                 ["Debug Mode"] = {
-                         ["Enabled"] = true,
-                         ["Mode"] = 'Sound', -- Sound // Print ))
-                },
+function GetClosestBodyPart(Character)
+	local BodyParts = {"Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
+	local ClosestPart = nil
+	local ClosestDistance = math.huge
+	
+	for _, PartName in pairs(BodyParts) do
+		local Part = Character:FindFirstChild(PartName)
+		if Part then
+			local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(Part.Position)
+			local Magnitude = (Vector2.new(Mouse.X, Mouse.Y)-Vector2.new(Vector.X, Vector.Y)).magnitude
+			if Magnitude < ClosestDistance then
+				ClosestDistance = Magnitude
+				ClosestPart = Part
+			end
+		end
+	end
+	
+	return ClosestPart
+end
 
-                 ["AxisFix"] = {
-                            ["Natural"] = 0.9,
-                            ["Corrected"] = 0.5,
-                            ["Assisted"] = 0.1,
+function GetTargetPart(Character)
+	if HitPart == "Closest" then
+		return GetClosestBodyPart(Character)
+	else
+		return Character:FindFirstChild(HitPart)
+	end
+end
 
-                },                                
+function FindNearestPlayerToMouse()
+	local Nearest
+	local Numb = math.huge
+	for _, Player in next, Players:GetChildren() do
+		if Player and Player ~= Players.LocalPlayer then
+			if CheckTeam(Player) == true then
+				if Player.Character and CheckInvisible(Player.Character) == false and CheckForcefield(Player.Character) == false then
+					if CheckBehind(Player.Character) == true then
+						if Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChildOfClass("Humanoid") then 
+							local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+							if Humanoid.Health > 0 then
+								local TargetPart = GetTargetPart(Player.Character)
+								if TargetPart then
+									local WorldPoint = TargetPart.Position
+									local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(WorldPoint)
+									local Magnitude = (Vector2.new(Mouse.X, Mouse.Y)-Vector2.new(Vector.X, Vector.Y)).magnitude
+									if Numb > Magnitude then 
+										if onScreen then
+											if Magnitude < FOV then
+												Numb = Magnitude
+												Nearest = Player
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	return Nearest
+end
 
-    },
+-- MouseButton1 pressed
+game:GetService("UserInputService").InputBegan:connect(function(I, G)
+	if G then return end
+	if I.UserInputType == Enum.UserInputType.MouseButton1 then
+		Active = true
+	end
+	if I.UserInputType == Enum.UserInputType.MouseButton2 then
+		RightClickHeld = true
+	end
+end)
 
-    ["Aim Correction"] = {
-        ["Enabled"] = true,
-        ["Radius"] = 200,
-        ["SafetyChecks"] = true,
-        ["FirstPerson"] = true,
-        ["ThirdPerson"] = false,
-        ["StickyWithSilent"] = true, -- Auto True if you have Target Mode.))
-        ["AimParts"] = "ClosestPart", -- ClosestPoint // ClosestPart ))
+-- MouseButton1 released
+game:GetService("UserInputService").InputEnded:connect(function(I, G)
+	if G then return end
+	if I.UserInputType == Enum.UserInputType.MouseButton1 then
+		Active = false
+	end
+	if I.UserInputType == Enum.UserInputType.MouseButton2 then
+		RightClickHeld = false
+	end
+end)
 
-        ["Smoothness"] = {
-            ['Ground'] = 0.006,
-            ['Air'] = 0.006,
-        },
-
-        ["Easing"] = {
-            ["Style"] = "Linear", -- "https://create.roblox.com/docs/reference/engine/enums/EasingStyle"
-        },
-
-        ["Prediction"] = {
-            ["Ground"] = 0,
-            ["Air"] = 0,
-        },
-
-    },
-
-    ["Assisted Clicking"] = {
-        ["Enabled"] = true,
-        ["FOVType"] = "BoxFOV", -- BoxFOV // Hitbox
-        ["Type"] = "Hold", -- Hold // Toggle
-        ["Mode"] = "Keybind", -- Mouse // Keybind
-
-        ["DelayTime"] = {
-                    ["Enabled"] = false, -- KEEP FALSE FOR DA HOOD !!
-                    ["[Double-Barrel SG]"] = 0.1,
-                    ["[Revolver]"] = 0.1,
-        },
-
-         ["Switch Tool Delay"] = {
-                              ["Enabled"] = false,
-                              ["Switch Tools Delay"] = 0.5,
-
-                              ["Activation Tools"] = {
-                                                 "[Revolver]",
-                                                 "[Double-Barrel SG]",
-                                                 "[Drum-Shotgun]",
-                                                 "[Shotgun]",
-                                                 "[TacticalShotgun]",
-                               },
-        },
-    
-    },
-    
-
-    ["Bullet Spread Accuracy"] = {
-        ["Enabled"] = false,
-
-        ["Configuration"] = {
-            ["RandomBulletsAccuracy"] = false,
-            ["Accuracy"] = math.random(0.8, 1),
-        },
-
-        ["[Double-Barrel SG]"] = 1,
-        ["[Drum-Shotgun]"] = 0.6,
-        ["[Shotgun]"] = 1,
-        ["[TacticalShotgun]"] = 1,
-    },
-
-    ["Visuals"] = {
-             ["Raid Awareness"] = {
-                            ["Visible"] = true,
-                            ["Friend Check"] = false,
-
-                            ["DistanceTarget"] = {
-                                           ["Enabled"] = false,
-                                           ["Distance"] = 400,
-                            },
-
-                            ["AllyBox"] = Color3.fromRGB(0, 255, 0),
-                            ["EnemyBox"] = Color3.fromRGB(255, 0, 0),
-                            ["Thickness"] = 1,
-                            ["Transparency "] = 1,
-
-                            ["OverLayNames"] = {
-                                          ["Visible"] = true,
-                                          ["Size"] = 14,
-                                          ["Color"] = Color3.fromRGB(255, 255, 255),
-                                          ["Transparency "] = 1,
-                                          ["Outline "] = true,
-                                          ["Offset "] = 2,
-                            },
-
-               },
-            
-    },
-
-    ["FOV"] = {
-        ["Enhanced Accuracy"] = {
-            ["BoxFOV"] = {
-                ["Visible"] = true,
-                ["Thickness"] = 1,
-                ["BoxColor"] = function() 
-                    local hue = tick() % 5 / 5
-                    return Color3.fromHSV(hue, 1, 1)
-                end,
-                
-                ["Normal BoxFOV"] = {
-                          ["LeftWidth"] = 1.7,
-                          ["RightWidth"] = 1.7,
-                          ["TopHeight"] = 2.5,
-                          ["BottomHeight"] = 2.5,
-                },
-
-                ["Tools BoxFOV"] = {
-                    ["Enabled"] = false,
-
-                    ["[Double-Barrel SG]"] = {
-                        ["LeftWidth"] = 1.7,
-                        ["RightWidth"] = 1.7,
-                        ["TopHeight"] = 2.5,
-                        ["BottomHeight"] = 2.5,
-                    },
-                    ["[Revolver]"] = {
-                        ["LeftWidth"] = 1.7,
-                        ["RightWidth"] = 1.7,
-                        ["TopHeight"] = 2.5,
-                        ["BottomHeight"] = 2.5,
-                    },
-                    ["[TacticalShotgun]"] = {
-                        ["LeftWidth"] = 1.7,
-                        ["RightWidth"] = 1.7,
-                        ["TopHeight"] = 2.5,
-                        ["BottomHeight"] = 2.5,
-                    },
-                    ["Other Tools"] = {
-                        ["LeftWidth"] = 1.7,
-                        ["RightWidth"] = 1.7,
-                        ["TopHeight"] = 2.5,
-                        ["BottomHeight"] = 2.5,
-                    },
-                },
-            },
-
-            ["CircleFOV"] = {
-                      ["Visible"] = true,
-                      ["Thickness"] = 1,
-                      ["CircleColor"] = Color3.fromRGB(128, 0, 128),
-
-                      ["CircleRadius"] = {
-                                 ["[Revolver]"] = {Close = 20, Mid = 30, Far = 50},
-                                 ["[Double-Barrel SG]"] = {Close = 50, Mid = 65, Far = 80},
-                                 ["[Drum-Shotgun]"] = {Close = 40, Mid = 50, Far = 60},
-                                 ["[Shotgun]"] = {Close = 40, Mid = 50, Far = 60},
-                                 ["[TacticalShotgun]"] = {Close = 40, Mid = 50, Far = 60},
-                                 -- [[  ADD More Guns Below 
-                                 -- ["[Blah Blah Gun]"] = {Close = 25, Mid = 40, Far = 70},
-                                 --]] 
-                       },
-            },
-    
-                    
-        },
-
-        ["Assisted Clicking"] = {
-            ["BoxFOV"] = {
-                   ["Visible"] = true,
-                   ["Thickness"] = 1,
-                   ["BoxColor"] = function() 
-                    local hue = tick() % 5 / 5
-                    return Color3.fromHSV(hue, 1, 1)
-                end,
-
-                   ["Tools BoxFOV"] = {
-                           ["Pistols BoxFOV"] = {
-                                ["LeftWidth"] = 0.7,
-                                ["RightWidth"] = 0.7,
-                                ["TopHeight"] = 1.7,
-                                ["BottomHeight"] = 2,
-                           },
-
-                           ["ShotGuns BoxFOV"] = {
-                                ["LeftWidth"] = 0.7,
-                                ["RightWidth"] = 0.7,
-                                ["TopHeight"] = 1.7,
-                                ["BottomHeight"] = 2,
-                           },
-
-                           ["Other Tools BoxFOV"] = {
-                                ["LeftWidth"] = 0.7,
-                                ["RightWidth"] = 0.7,
-                                ["TopHeight"] = 1.7,
-                                ["BottomHeight"] = 2,
-                           },
-                   },
-            },
-        },
-    },
-
-    ["Skin Changer"] = { 
-                  ["Enabled"] = true,
-                  ["Tools"] = {
-                    ["[Revolver]"] = "Golden Age", -- Galaxy, Luck, Matrix, Golden Age, Christmas Wrap, Inferno, Iced Out
-                    ["[Double-Barrel SG]"] = "Golden Age", -- Luck, Galaxy, Matrix, Golden Age, Christmas Wrap, Valentine
-                    ["[TacticalShotgun]"] = "Luck", -- Luck, Galaxy, Matrix, Inferno, Christmas Wrap, Valentine
-                    ["[Knife]"] = "Love Kukri", -- Love Kukri only tested skin, Most are probably buggy / not working
-                    -- [[  ADD More Guns Below  ]]
-                  },
-    },
-
-    ["Movement Enhancements"] = { 
-             ['Speed Enhancements'] = {
-                          ["Enabled"] = false,
-
-                          ["Related Shooting"] = {
-                                        ["While Shooting"] = 1.2,
-                           },
-
-                          ["Related Reloading"] = {
-                                        ["While Reloading"] = 1.2,
-                           },
-                          ["Related Health"] = {         
-                                        ["Low Health"] = 1.2,
-                           },
-               },
-     },
-
-    ["Inventory Sorter"] = {
-        ["Enabled"] = false,
-        ["Hide Junk"] = true,
-
-        ["Slots"] = {
-            ['1'] = "[Revolver]",
-            ['2'] = "[Double-Barrel SG]",
-            ['3'] = "[TacticalShotgun]",
-            ['4'] = "[Shotgun]",
-            ['5'] = "[Knife]"
-        },
-    },
-
-       ['Macro'] = {
-           ["Enabled"] = true,
-           ["Type"] = "ThirdPerson", -- ThirdPerson // FirstPerson.
-           ["Delay"] = 0.01,
-           ["HoldMode"] = true,
-    },
-
-    ["AutoPrediction"] = {
-             ["Enabled"] = false,
-             ["UpdateOnPingSpike"] = true, -- Only update when ping changes significantly
-             ["MinimumPingChange"] = 10, -- Only update if ping changes by 10+ ms
-
-             ["PingRanges"] = {
-                         ["10-20"] = 0.115,
-                         ["20-30"] = 0.120,
-                         ["30-40"] = 0.125,
-                         ["40-50"] = 0.130,
-                         ["50-60"] = 0.135,
-                         ["60-70"] = 0.140,
-                         ["70-80"] = 0.145,
-                         ["80-90"] = 0.150,
-                         ["90-100"] = 0.155,
-                         ["100-110"] = 0.160,
-                         ["110-120"] = 0.165,
-                         ["120-130"] = 0.170,
-                         ["130+"] = 0.175, 
-    },
-},
-
-} 
+game:GetService("RunService").Stepped:connect(function()
+   if Active and not RightClickHeld then
+       if FindNearestPlayerToMouse() then
+           local TargetPart = GetTargetPart(FindNearestPlayerToMouse().Character)
+           if TargetPart then
+               local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
+               local MagnitudeX = Mouse.X - Vector.X
+               local Magni
