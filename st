@@ -1,4 +1,3 @@
-
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
@@ -6,15 +5,18 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local VirtualInputManager = game:GetService("VirtualInputManager")
 
+
 local Config = {
     Enabled = true,
-    Mode = "hold", 
+    Mode = "hold",
     Keybind = Enum.KeyCode.E,
 
     StartDelay = 0.01,
     EndDelay = 0.02,
 
     Prediction = 0.12,
+
+    TeamCheck = true
 }
 
 Config.StartDelay = math.clamp(Config.StartDelay, 0.01, 1)
@@ -23,6 +25,29 @@ Config.EndDelay   = math.clamp(Config.EndDelay, Config.StartDelay, 2)
 local isToggled = false
 local nextShotTime = 0
 local mouseHeld = false
+
+
+
+local function CheckTeam(player)
+    if not Config.TeamCheck then
+        return true
+    end
+
+    return player.Team ~= LocalPlayer.Team
+end
+
+
+local function CheckInvisible(character)
+    for _, part in pairs(character:GetDescendants()) do
+        if part:IsA("BasePart") or part:IsA("MeshPart") then
+            if part.Transparency < 1 then
+                return false 
+            end
+        end
+    end
+    return true 
+end
+
 
 
 local function mouseDown(x, y)
@@ -39,6 +64,7 @@ local function getMousePosition()
 end
 
 
+
 local function isUsingKnife()
     local tool = LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool")
     if not tool then return false end
@@ -50,16 +76,14 @@ local function isUsingKnife()
     return table.find(blacklist, tool.Name:lower()) ~= nil
 end
 
-
 local function hasForceField(character)
-    if not character then return false end
-    return character:FindFirstChildOfClass("ForceField") ~= nil
+    return character and character:FindFirstChildOfClass("ForceField") ~= nil
 end
-
 
 local function isTyping()
     return UserInputService:GetFocusedTextBox() ~= nil
 end
+
 
 
 local function isValidCharacterPart(part)
@@ -71,7 +95,18 @@ local function isValidCharacterPart(part)
     local humanoid = character:FindFirstChildOfClass("Humanoid")
     if not humanoid or humanoid.Health <= 0 then return false end
 
-    if Players:GetPlayerFromCharacter(character) == LocalPlayer then
+    local player = Players:GetPlayerFromCharacter(character)
+    if not player or player == LocalPlayer then
+        return false
+    end
+
+   
+    if not CheckTeam(player) then
+        return false
+    end
+
+   
+    if CheckInvisible(character) then
         return false
     end
 
@@ -83,13 +118,15 @@ local function isValidCharacterPart(part)
 end
 
 
+
 local function getPredictedPosition(part)
     return part.Position + (part.Velocity * Config.Prediction)
 end
 
 
+
 local function TriggerAction()
-    if isTyping() then return false end 
+    if isTyping() then return false end
 
     local char = LocalPlayer.Character
     if not char then return false end
@@ -113,7 +150,7 @@ local function TriggerAction()
 
     local currentTime = os.clock()
     if currentTime < nextShotTime then
-        return true 
+        return true
     end
 
     local x, y = getMousePosition()
@@ -130,13 +167,13 @@ local function TriggerAction()
 end
 
 
+
 UserInputService.InputBegan:Connect(function(input, gp)
     if gp then return end
     if Config.Mode == "toggle" and input.KeyCode == Config.Keybind then
         isToggled = not isToggled
     end
 end)
-
 
 RunService.RenderStepped:Connect(function()
     if not Config.Enabled then return end
