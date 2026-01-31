@@ -204,7 +204,7 @@ local Players = game:GetService("Players")
 local Mouse = Players.LocalPlayer:GetMouse()
 local Active = false
 local RightClickHeld = false
-local FOV = 35
+local FOV = 80
 local HitPart = "Closest" -- Options: "Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Closest"
 local TeamCheck = true -- Set to false to target teammates
 
