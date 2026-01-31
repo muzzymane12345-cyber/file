@@ -353,7 +353,7 @@ game:GetService("RunService").Stepped:connect(function()
                local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
                local MagnitudeX = Mouse.X - Vector.X
                local MagnitudeY = Mouse.Y - Vector.Y
-               mousemoverel((-MagnitudeX * 0.065), (-MagnitudeY * 0.065))
+               mousemoverel((-MagnitudeX * 0.075), (-MagnitudeY * 0.075))
            end
        end
 	end
