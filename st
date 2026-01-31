@@ -3,12 +3,20 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
-local Mouse = Players.LocalPlayer:GetMouse()
 local Active = false
 local RightClickHeld = false
 local FOV = 35
 local HitPart = "Closest" -- Options: "Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Closest"
 local TeamCheck = true -- Set to false to target teammates
+
+local MousePos = Vector2.new(0,0)
+
+
+UserInputService.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		MousePos = Vector2.new(input.Position.X, input.Position.Y)
+	end
+end)
 
 function CheckTeam(Player)
 	if not TeamCheck then
@@ -71,7 +79,7 @@ function GetClosestBodyPart(Character)
 		local Part = Character:FindFirstChild(PartName)
 		if Part then
 			local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(Part.Position)
-			local Magnitude = (Vector2.new(Mouse.X, Mouse.Y)-Vector2.new(Vector.X, Vector.Y)).magnitude
+			local Magnitude = (MousePos - Vector2.new(Vector.X, Vector.Y)).magnitude
 			if Magnitude < ClosestDistance then
 				ClosestDistance = Magnitude
 				ClosestPart = Part
@@ -103,9 +111,8 @@ function FindNearestPlayerToMouse()
 							if Humanoid.Health > 0 then
 								local TargetPart = GetTargetPart(Player.Character)
 								if TargetPart then
-									local WorldPoint = TargetPart.Position
-									local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(WorldPoint)
-									local Magnitude = (Vector2.new(Mouse.X, Mouse.Y)-Vector2.new(Vector.X, Vector.Y)).magnitude
+									local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
+									local Magnitude = (MousePos - Vector2.new(Vector.X, Vector.Y)).magnitude
 									if Numb > Magnitude then 
 										if onScreen then
 											if Magnitude < FOV then
@@ -125,8 +132,8 @@ function FindNearestPlayerToMouse()
 	return Nearest
 end
 
--- MouseButton1 pressed
-game:GetService("UserInputService").InputBegan:connect(function(I, G)
+
+UserInputService.InputBegan:Connect(function(I, G)
 	if G then return end
 	if I.UserInputType == Enum.UserInputType.MouseButton1 then
 		Active = true
@@ -136,8 +143,8 @@ game:GetService("UserInputService").InputBegan:connect(function(I, G)
 	end
 end)
 
--- MouseButton1 released
-game:GetService("UserInputService").InputEnded:connect(function(I, G)
+
+UserInputService.InputEnded:Connect(function(I, G)
 	if G then return end
 	if I.UserInputType == Enum.UserInputType.MouseButton1 then
 		Active = false
@@ -147,11 +154,17 @@ game:GetService("UserInputService").InputEnded:connect(function(I, G)
 	end
 end)
 
-game:GetService("RunService").Stepped:connect(function()
+RunService.Stepped:Connect(function()
    if Active and not RightClickHeld then
-       if FindNearestPlayerToMouse() then
-           local TargetPart = GetTargetPart(FindNearestPlayerToMouse().Character)
+       local NearestPlayer = FindNearestPlayerToMouse()
+       if NearestPlayer then
+           local TargetPart = GetTargetPart(NearestPlayer.Character)
            if TargetPart then
                local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
-               local MagnitudeX = Mouse.X - Vector.X
-               local Magni
+               local MagnitudeX = MousePos.X - Vector.X
+               local MagnitudeY = MousePos.Y - Vector.Y
+               mousemoverel((-MagnitudeX * 0.075), (-MagnitudeY * 0.075))
+           end
+       end
+	end
+end)
