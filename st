@@ -1,229 +1,170 @@
-getgenv().Settings = {
-    Jumpbot = {
-        Enabled = true;
-        TeamCheck = true;
-        Delay = 0; -- milliseconds
-    };
-
-    WallCheck = {
-        Enabled = true;
-    };
-
-    FOV = {
-        Enabled = false;
-
-        Radius = 35;
-        MinimumRadius = 35; -- prevents instability
-        Padding = 53;       -- forgiveness for small FOVs
-    };
-
-    Notifications = {
-        Enabled = false;
-    };
-}
-
--- SERVICES
-local Teams = game:GetService("Teams")
-local RunService = game:GetService("RunService")
+print("loadin ur shit")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
-local LocalPlayer = Players.LocalPlayer
-local Camera = workspace.CurrentCamera
+local Active = false
+local RightClickHeld = false
+local FOV = 35
+local HitPart = "Closest" -- Options: "Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Closest"
+local TeamCheck = true -- Set to false to target teammates
 
-local StatesToIgnore = {
-    Enum.HumanoidStateType.Dead,
-    Enum.HumanoidStateType.Freefall,
-    Enum.HumanoidStateType.Jumping
-}
+local MousePos = Vector2.new(0,0)
 
-local ClosestPlayer
-local RightClickHeld = false -- Track right-click state
 
--- WALL CHECK
-local function HasLineOfSight(TargetPart)
-    if not Settings.WallCheck.Enabled then
-        return true
-    end
-
-    local Origin = Camera.CFrame.Position
-    local Direction = TargetPart.Position - Origin
-
-    local Params = RaycastParams.new()
-    Params.FilterType = Enum.RaycastFilterType.Blacklist
-    Params.FilterDescendantsInstances = {
-        LocalPlayer.Character,
-        TargetPart.Parent
-    }
-    Params.IgnoreWater = true
-
-    return workspace:Raycast(Origin, Direction, Params) == nil
-end
-
--- FOV CHECK (STABLE)
-local function IsInFOV(ScreenPos)
-    if not Settings.FOV.Enabled then
-        return true
-    end
-
-    local Mouse = UserInputService:GetMouseLocation()
-    local Radius = math.max(Settings.FOV.Radius, Settings.FOV.MinimumRadius)
-
-    return (Vector2.new(ScreenPos.X, ScreenPos.Y) - Mouse).Magnitude
-        <= (Radius + Settings.FOV.Padding)
-end
-
--- CLOSEST VISIBLE BODY PART
-local function GetClosestVisiblePart(Character)
-    local ClosestPart
-    local ClosestDistance = math.huge
-    local Mouse = UserInputService:GetMouseLocation()
-
-    for _, Part in ipairs(Character:GetChildren()) do
-        if not Part:IsA("BasePart") then continue end
-        if Part.Transparency >= 0.5 then continue end
-        if not HasLineOfSight(Part) then continue end
-
-        local ScreenPos, OnScreen = Camera:WorldToScreenPoint(Part.Position)
-        if not OnScreen then continue end
-
-        local Distance = (Vector2.new(ScreenPos.X, ScreenPos.Y) - Mouse).Magnitude
-        if Distance < ClosestDistance then
-            ClosestDistance = Distance
-            ClosestPart = Part
-        end
-    end
-
-    return ClosestPart
-end
-
--- JUMP LOGIC
-local function Jump(HumanoidRootPart)
-    if not Settings.Jumpbot.Enabled then return end
-    if RightClickHeld then return end -- Don't jump while right-clicking
-
-    local TargetPlayer = Players:GetPlayerFromCharacter(HumanoidRootPart.Parent)
-    if not TargetPlayer then return end
-
-    if Settings.Jumpbot.TeamCheck then
-        if TargetPlayer.Team == LocalPlayer.Team then return end
-        if Teams[tostring(TargetPlayer.Team)]
-            and Teams[tostring(TargetPlayer.Team)].AutoAssignable then
-            return
-        end
-    end
-
-    if TargetPlayer ~= ClosestPlayer then return end
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("Humanoid") then return end
-
-    local TargetPart = GetClosestVisiblePart(HumanoidRootPart.Parent)
-    if not TargetPart then return end
-
-    local ScreenPos, OnScreen = Camera:WorldToScreenPoint(TargetPart.Position)
-    if not OnScreen then return end
-    if not IsInFOV(ScreenPos) then return end
-
-    if Settings.Jumpbot.Delay > 0 then
-        task.wait(Settings.Jumpbot.Delay / 1000)
-    end
-
-    local Humanoid = LocalPlayer.Character.Humanoid
-    if Humanoid.Health > 0
-        and not table.find(StatesToIgnore, Humanoid:GetState()) then
-
-        keypress(0x20)
-        task.wait(0.5)
-        keyrelease(0x20)
-    end
-end
-
--- CLOSEST PLAYER TO CURSOR
-local function GetClosestPlayer()
-    local Result
-    local ClosestDistance = math.huge
-    local Mouse = UserInputService:GetMouseLocation()
-
-    for _, Player in ipairs(Players:GetPlayers()) do
-        if Player == LocalPlayer then continue end
-        local Character = Player.Character
-        local HRP = Character and Character:FindFirstChild("HumanoidRootPart")
-        if not HRP then continue end
-
-        local Pos, OnScreen = Camera:WorldToViewportPoint(HRP.Position)
-        if not OnScreen then continue end
-
-        local Distance = (Mouse - Vector2.new(Pos.X, Pos.Y)).Magnitude
-        if Distance < ClosestDistance then
-            ClosestDistance = Distance
-            Result = Player
-        end
-    end
-
-    return Result
-end
-
--- CHARACTER MONITOR
-local function JumpFunc(Character)
-    local HRP = Character:WaitForChild("HumanoidRootPart")
-    local Bool = Instance.new("BoolValue")
-
-    Bool.Changed:Connect(function(v)
-        if v then
-            Jump(HRP)
-        end
-    end)
-
-    RunService.RenderStepped:Connect(function()
-        Bool.Value = HRP.Velocity.Y > 10
-    end)
-end
-
--- PLAYER CONNECTIONS
-for _, Player in ipairs(Players:GetPlayers()) do
-    if Player ~= LocalPlayer then
-        Player.CharacterAdded:Connect(JumpFunc)
-        if Player.Character then
-            JumpFunc(Player.Character)
-        end
-    end
-end
-
-Players.PlayerAdded:Connect(function(Player)
-    Player.CharacterAdded:Connect(JumpFunc)
+UserInputService.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then
+		MousePos = Vector2.new(input.Position.X, input.Position.Y)
+	end
 end)
 
--- UPDATE LOOP
-RunService.Heartbeat:Connect(function()
-    ClosestPlayer = GetClosestPlayer()
+function CheckTeam(Player)
+	if not TeamCheck then
+		return true
+	end
+	if Player.Team == Players.LocalPlayer.Team then
+		return false
+	end
+	return true
+end
+
+function CheckInvisible(Character)
+	for _, Part in pairs(Character:GetDescendants()) do
+		if Part:IsA("BasePart") or Part:IsA("MeshPart") then
+			if Part.Transparency < 1 then
+				return false
+			end
+		end
+	end
+	return true
+end
+
+function CheckForcefield(Character)
+	if Character:FindFirstChildOfClass("ForceField") then
+		return true
+	end
+	return false
+end
+
+function CheckBehind(Character)
+	local ignore = {
+		Character:WaitForChild("Left Arm"),
+		Character:WaitForChild("Right Arm"),
+		Character:WaitForChild("Right Leg"),
+		Character:WaitForChild("Left Leg"),
+		Character:WaitForChild("Torso"),
+		Character:WaitForChild("HumanoidRootPart"),
+		Players.LocalPlayer.Character:WaitForChild("Left Arm"),
+		Players.LocalPlayer.Character:WaitForChild("Right Arm"),
+		Players.LocalPlayer.Character:WaitForChild("Right Leg"),
+		Players.LocalPlayer.Character:WaitForChild("Left Leg"),
+		Players.LocalPlayer.Character:WaitForChild("Torso"),
+		Players.LocalPlayer.Character:WaitForChild("HumanoidRootPart")
+	}
+	local RayCast = Ray.new(Players.LocalPlayer.Character.Head.CFrame.p, (Character.Head.CFrame.p - Players.LocalPlayer.Character.Head.CFrame.p).unit*1000)
+	local Part, Pos = workspace:FindPartOnRayWithIgnoreList(RayCast, ignore, false, true)
+	local Debris = math.floor((Players.LocalPlayer.Character.Head.CFrame.p - Pos).magnitude*100)/100
+	local EndPos = math.floor((Players.LocalPlayer.Character.Head.CFrame.p - Character.Head.CFrame.p).magnitude*100)/100
+	if EndPos - Debris < 2 then
+		return true
+	end
+end
+
+function GetClosestBodyPart(Character)
+	local BodyParts = {"Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg"}
+	local ClosestPart = nil
+	local ClosestDistance = math.huge
+	
+	for _, PartName in pairs(BodyParts) do
+		local Part = Character:FindFirstChild(PartName)
+		if Part then
+			local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(Part.Position)
+			local Magnitude = (MousePos - Vector2.new(Vector.X, Vector.Y)).magnitude
+			if Magnitude < ClosestDistance then
+				ClosestDistance = Magnitude
+				ClosestPart = Part
+			end
+		end
+	end
+	
+	return ClosestPart
+end
+
+function GetTargetPart(Character)
+	if HitPart == "Closest" then
+		return GetClosestBodyPart(Character)
+	else
+		return Character:FindFirstChild(HitPart)
+	end
+end
+
+function FindNearestPlayerToMouse()
+	local Nearest
+	local Numb = math.huge
+	for _, Player in next, Players:GetChildren() do
+		if Player and Player ~= Players.LocalPlayer then
+			if CheckTeam(Player) == true then
+				if Player.Character and CheckInvisible(Player.Character) == false and CheckForcefield(Player.Character) == false then
+					if CheckBehind(Player.Character) == true then
+						if Player.Character:FindFirstChild("Head") and Player.Character:FindFirstChildOfClass("Humanoid") then 
+							local Humanoid = Player.Character:FindFirstChildOfClass("Humanoid")
+							if Humanoid.Health > 0 then
+								local TargetPart = GetTargetPart(Player.Character)
+								if TargetPart then
+									local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
+									local Magnitude = (MousePos - Vector2.new(Vector.X, Vector.Y)).magnitude
+									if Numb > Magnitude then 
+										if onScreen then
+											if Magnitude < FOV then
+												Numb = Magnitude
+												Nearest = Player
+											end
+										end
+									end
+								end
+							end
+						end
+					end
+				end
+			end
+		end
+	end
+	return Nearest
+end
+
+
+UserInputService.InputBegan:Connect(function(I, G)
+	if G then return end
+	if I.UserInputType == Enum.UserInputType.MouseButton1 then
+		Active = true
+	end
+	if I.UserInputType == Enum.UserInputType.MouseButton2 then
+		RightClickHeld = true
+	end
 end)
 
--- RIGHT CLICK DETECTION
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
-        RightClickHeld = true
-    end
+
+UserInputService.InputEnded:Connect(function(I, G)
+	if G then return end
+	if I.UserInputType == Enum.UserInputType.MouseButton1 then
+		Active = false
+	end
+	if I.UserInputType == Enum.UserInputType.MouseButton2 then
+		RightClickHeld = false
+	end
 end)
 
-UserInputService.InputEnded:Connect(function(Input, GameProcessed)
-    if Input.UserInputType == Enum.UserInputType.MouseButton2 then
-        RightClickHeld = false
-    end
-end)
-
--- INSERT = TOGGLE JUMPBOT
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if GameProcessed then return end
-
-    if Input.KeyCode == Enum.KeyCode.Insert then
-        Settings.Jumpbot.Enabled = not Settings.Jumpbot.Enabled
-    end
-end)
-
--- HOME = TOGGLE TEAM CHECK
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if GameProcessed then return end
-
-    if Input.KeyCode == Enum.KeyCode.Home then
-        Settings.Jumpbot.TeamCheck = not Settings.Jumpbot.TeamCheck
-    end
+RunService.Stepped:Connect(function()
+   if Active and not RightClickHeld then
+       local NearestPlayer = FindNearestPlayerToMouse()
+       if NearestPlayer then
+           local TargetPart = GetTargetPart(NearestPlayer.Character)
+           if TargetPart then
+               local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
+               local MagnitudeX = MousePos.X - Vector.X
+               local MagnitudeY = MousePos.Y - Vector.Y
+               mousemoverel((-MagnitudeX * 0.075), (-MagnitudeY * 0.075))
+           end
+       end
+	end
 end)
