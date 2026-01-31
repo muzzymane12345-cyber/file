@@ -12,7 +12,7 @@ local Config = {
     Keybind = Enum.KeyCode.E,
 
     StartDelay = 0.01,
-    EndDelay = 0.02,
+    EndDelay = 0.01,
 
     Prediction = 0.12,
 }
