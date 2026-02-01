@@ -204,7 +204,7 @@ local Players = game:GetService("Players")
 local Mouse = Players.LocalPlayer:GetMouse()
 local Active = false
 local RightClickHeld = false
-local FOV = 35
+local FOV = 50
 local HitPart = "Closest" -- Options: "Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Closest"
 local TeamCheck = true -- Set to false to target teammates
 
@@ -353,7 +353,7 @@ game:GetService("RunService").Stepped:connect(function()
                local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
                local MagnitudeX = Mouse.X - Vector.X
                local MagnitudeY = Mouse.Y - Vector.Y
-               mousemoverel((-MagnitudeX * 0.070), (-MagnitudeY * 0.072))
+               mousemoverel((-MagnitudeX * 0.075), (-MagnitudeY * 0.072))
            end
        end
 	end
