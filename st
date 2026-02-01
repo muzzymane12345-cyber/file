@@ -16,7 +16,7 @@ local Config = {
 
     Prediction = 0.12,
 
-    TeamCheck = false
+    TeamCheck = true
 }
 
 Config.StartDelay = math.clamp(Config.StartDelay, 0.01, 1)
@@ -204,9 +204,9 @@ local Players = game:GetService("Players")
 local Mouse = Players.LocalPlayer:GetMouse()
 local Active = false
 local RightClickHeld = false
-local FOV = 50
+local FOV = 45
 local HitPart = "Closest" -- Options: "Head", "Torso", "HumanoidRootPart", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "Closest"
-local TeamCheck = false -- Set to false to target teammates
+local TeamCheck = true -- Set to false to target teammates
 
 function CheckTeam(Player)
 	if not TeamCheck then
@@ -353,7 +353,7 @@ game:GetService("RunService").Stepped:connect(function()
                local Vector, onScreen = workspace.CurrentCamera:WorldToScreenPoint(TargetPart.Position)
                local MagnitudeX = Mouse.X - Vector.X
                local MagnitudeY = Mouse.Y - Vector.Y
-               mousemoverel((-MagnitudeX * 0.068), (-MagnitudeY * 0.072))
+               mousemoverel((-MagnitudeX * 0.070), (-MagnitudeY * 0.072))
            end
        end
 	end
