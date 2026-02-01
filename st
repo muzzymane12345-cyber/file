@@ -16,7 +16,7 @@ local Config = {
 
     Prediction = 0.12,
 
-    TeamCheck = true
+    TeamCheck = false
 }
 
 Config.StartDelay = math.clamp(Config.StartDelay, 0.01, 1)
