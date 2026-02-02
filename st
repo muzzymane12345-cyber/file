@@ -11,7 +11,7 @@ local CONFIG = {
     aimbotSensitivity = 0.4,         
     aimbotSmoothness = 8,         
     showFOV = false,               
-    hitPart = "head",             
+    hitPart = "Closest",
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
@@ -43,10 +43,10 @@ local CONFIG = {
     triggerbotInvisible = true,   
     
    
-    masterESP = true,              
-    boxESP = true,                
-    healthESP = true,             
-    nameESP = true,               
+    masterESP = false,              
+    boxESP = false,                
+    healthESP = false,             
+    nameESP = false,               
     teamESP = false,              
 }
 
