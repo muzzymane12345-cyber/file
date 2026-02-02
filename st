@@ -8,10 +8,10 @@ local CONFIG = {
     aimKey = "MouseButton1",      
     aimKeyHold = true,            
     fovRadius = 80,               
-    aimbotSensitivity = 4,         
+    aimbotSensitivity = 0.3,         
     aimbotSmoothness = 8,         
     showFOV = true,               
-    hitPart = "Head",             
+    hitPart = "Closest",             
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
@@ -29,17 +29,17 @@ local CONFIG = {
     showDeadZone = true,          
     
     
-    cursorCalibrationKey = "F1",  
+    cursorCalibrationKey = "",  
     
    
-    masterTriggerbot = false,     
+    masterTriggerbot = true,     
     triggerKey = "LeftAlt",        
     triggerKeyHold = true,         
     triggerbotDelay = 0,           
     triggerbotDuration = 10,       
-    triggerbotTeamkill = false,    
-    triggerbotDead = false,        
-    triggerbotForcefield = false,  
+    triggerbotTeamkill = true,    
+    triggerbotDead = true,        
+    triggerbotForcefield = true,  
     triggerbotInvisible = true,   
     
    
