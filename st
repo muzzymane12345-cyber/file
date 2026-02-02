@@ -7,11 +7,11 @@ local CONFIG = {
     masterAimbot = true,           
     aimKey = "MouseButton1",      
     aimKeyHold = true,            
-    fovRadius = 40,               
-    aimbotSensitivity = 0.4,         
+    fovRadius = 80,               
+    aimbotSensitivity = 4,         
     aimbotSmoothness = 8,         
-    showFOV = false,               
-    hitPart = "Closest",
+    showFOV = true,               
+    hitPart = "Head",             
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
@@ -19,7 +19,7 @@ local CONFIG = {
     aimbotForcefield = true,      
     aimbotInvisible = true,       
     aimbotVisible = true,        
-    aimbotSticky = true,         
+    aimbotSticky = false,         
     aimbotIgnoreFOV = false,      
     aimbotNoLock = true,          
     
@@ -45,7 +45,7 @@ local CONFIG = {
    
     masterESP = false,              
     boxESP = false,                
-    healthESP = false,             
+    healthESP = true,             
     nameESP = false,               
     teamESP = false,              
 }
