@@ -18,10 +18,10 @@ local CONFIG = {
     aimbotTeamkill = false,        
     aimbotForcefield = true,      
     aimbotInvisible = true,       
-    aimbotVisible = false,        
+    aimbotVisible = true,        
     aimbotSticky = true,         
     aimbotIgnoreFOV = false,      
-    aimbotNoLock = false,          
+    aimbotNoLock = true,          
     
     
     deadZone = false,            
