@@ -29,7 +29,7 @@ local CONFIG = {
     showDeadZone = true,          
     
     
-    cursorCalibrationKey = "",  
+    cursorCalibrationKey = "F1",  
     
    
     masterTriggerbot = true,     
