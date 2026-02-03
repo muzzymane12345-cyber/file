@@ -8,7 +8,7 @@ local CONFIG = {
     aimKey = "MouseButton1",      
     aimKeyHold = true,            
     fovRadius = 80,               
-    aimbotSensitivity = 0,4,         
+    aimbotSensitivity = 20,         
     aimbotSmoothness = 9,         
     showFOV = false,               
     hitPart = "Closest",             
@@ -43,7 +43,7 @@ local CONFIG = {
     triggerbotInvisible = true,   
     
    
-    masterESP = false,              
+    masterESP = true,              
     boxESP = true,                
     healthESP = true,             
     nameESP = false,               
