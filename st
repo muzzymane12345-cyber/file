@@ -28,8 +28,8 @@ local CONFIG = {
     cursorCalibrationKey = "F1",  
     
    
-    masterTriggerbot = false,     
-    triggerKey = "LeftAlt",        
+    masterTriggerbot = true,     
+    triggerKey = "P",        
     triggerKeyHold = true,         
     triggerbotDelay = 0,           
     triggerbotDuration = 10,       
