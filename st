@@ -47,7 +47,7 @@ local CONFIG = {
     boxESP = true,                
     healthESP = true,             
     nameESP = false,               
-    teamESP = true,              
+    teamESP = false,              
 }
 
 
