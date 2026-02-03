@@ -33,7 +33,7 @@ local CONFIG = {
     
    
     masterTriggerbot = true,     
-    triggerKey = "LeftAlt",        
+    triggerKey = "P",        
     triggerKeyHold = true,         
     triggerbotDelay = 0,           
     triggerbotDuration = 10,       
@@ -43,7 +43,7 @@ local CONFIG = {
     triggerbotInvisible = true,   
     
    
-    masterESP = true,              
+    masterESP = false,              
     boxESP = true,                
     healthESP = true,             
     nameESP = false,               
