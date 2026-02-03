@@ -10,7 +10,7 @@ local CONFIG = {
     fovRadius = 80,               
     aimbotSensitivity = 0.6,         
     aimbotSmoothness = 9,         
-    showFOV = true,               
+    showFOV = false,               
     hitPart = "Closest",             
     aimbotMethod = "Mouse",       
     
@@ -43,8 +43,8 @@ local CONFIG = {
     triggerbotInvisible = true,   
     
    
-    masterESP = false,              
-    boxESP = false,                
+    masterESP = true,              
+    boxESP = true,                
     healthESP = true,             
     nameESP = false,               
     teamESP = false,              
