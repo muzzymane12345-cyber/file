@@ -11,7 +11,7 @@ local CONFIG = {
     aimbotSensitivity = 0.3,         
     aimbotSmoothness = 17,         
     showFOV = false,               
-    hitPart = "Closest",             
+    hitPart = "Head",             
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
