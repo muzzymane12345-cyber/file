@@ -15,7 +15,7 @@ local CONFIG = {
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
-    aimbotTeamkill = true,        
+    aimbotTeamkill = false,        
     aimbotForcefield = true,      
     aimbotInvisible = true,       
     aimbotVisible = true,        
@@ -37,7 +37,7 @@ local CONFIG = {
     triggerKeyHold = true,         
     triggerbotDelay = 0,           
     triggerbotDuration = 10,       
-    triggerbotTeamkill = false,    
+    triggerbotTeamkill = true,    
     triggerbotDead = true,        
     triggerbotForcefield = true,  
     triggerbotInvisible = true,   
