@@ -43,11 +43,11 @@ local CONFIG = {
     triggerbotInvisible = true,   
     
    
-    masterESP = false,              
+    masterESP = true,              
     boxESP = true,                
     healthESP = true,             
     nameESP = false,               
-    teamESP = false,              
+    teamESP = true,              
 }
 
 
