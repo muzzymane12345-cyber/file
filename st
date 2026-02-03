@@ -8,10 +8,10 @@ local CONFIG = {
     aimKey = "MouseButton1",      
     aimKeyHold = true,            
     fovRadius = 40,               
-    aimbotSensitivity = 0.5,         
+    aimbotSensitivity = 0.4,         
     aimbotSmoothness = 8,         
     showFOV = false,               
-    hitPart = "Closest",             
+    hitPart = "Head",             
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
