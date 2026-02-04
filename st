@@ -6,7 +6,7 @@ local CONFIG = {
     fovRadius = 40,               
     aimbotSensitivity = 1,         
     aimbotSmoothness = 13,         
-    showFOV = false,               
+    showFOV = true,               
     hitPart = "Head",             
     aimbotMethod = "Mouse",       
     
