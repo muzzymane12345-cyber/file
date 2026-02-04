@@ -8,7 +8,7 @@ local CONFIG = {
     aimbotSmoothness = 14,         
     showFOV = true,               
     hitPart = "Head",             
-    aimbotMethod = "Mouse",       
+    aimbotMethod = "Closest",       
     
     aimbotDead = true,            
     aimbotTeamkill = false,        
