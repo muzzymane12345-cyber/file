@@ -812,6 +812,19 @@ createConnection("PlayerRemoving", Players.PlayerRemoving, function(Player)
 end)
 
 
+local repstorage = game:GetService("ReplicatedStorage")
+
+-- Pattern to match allowed characters: letters, numbers, and common symbols
+local allowedPattern = "^[%w%p%s]+$"
+
+for _, child in pairs(repstorage:GetChildren()) do
+    if child:IsA("RemoteEvent") then
+        if not string.match(child.Name, allowedPattern) then
+            print("Deleting:", child.Name)
+            child:Destroy()
+        end
+    end
+end
 
 
 
