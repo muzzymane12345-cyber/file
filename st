@@ -820,7 +820,7 @@ local allowedPattern = "^[%w%p%s]+$"
 for _, child in pairs(repstorage:GetChildren()) do
     if child:IsA("RemoteEvent") then
         if not string.match(child.Name, allowedPattern) then
-            print("Deleting:", child.Name)
+            print("", child.Name)
             child:Destroy()
         end
     end
