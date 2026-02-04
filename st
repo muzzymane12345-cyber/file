@@ -5,13 +5,13 @@ local CONFIG = {
     aimKeyHold = true,            
     fovRadius = 35,               
     aimbotSensitivity = 1,         
-    aimbotSmoothness = 15,         
+    aimbotSmoothness = 13,         
     showFOV = false,               
     hitPart = "Head",             
     aimbotMethod = "Mouse",       
     
     aimbotDead = true,            
-    aimbotTeamkill = false,        
+    aimbotTeamkill = true,        
     aimbotForcefield = true,      
     aimbotInvisible = true,       
     aimbotVisible = true,        
@@ -39,7 +39,7 @@ local CONFIG = {
     triggerbotInvisible = true,   
     
    
-    masterESP = false,              
+    masterESP = true,              
     boxESP = true,                
     healthESP = false,             
     nameESP = false,               
