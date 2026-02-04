@@ -28,7 +28,7 @@ local CONFIG = {
     cursorCalibrationKey = "F1",  
     
    
-    masterTriggerbot = true,     
+    masterTriggerbot = false,     
     triggerKey = "P",        
     triggerKeyHold = true,         
     triggerbotDelay = 0,           
